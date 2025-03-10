@@ -53,6 +53,11 @@ function addLineNumber(num) {
     lineNumbers.appendChild(lineNum);
 }
 
+// Scroll synchronization function
+function syncScroll() {
+    lineNumbers.scrollTop = editorContent.parentElement.scrollTop;
+}
+
 // Update display
 function updateDisplay() {
     let html = '';
@@ -79,9 +84,20 @@ function updateDisplay() {
     }
     
     editorContent.innerHTML = html;
-    
-    // After updating content, recalculate line numbers
     updateLineNumbers();
+    
+    // Scroll to cursor position
+    const currentLineEl = editorContent.querySelectorAll('div')[currentLine];
+    if (currentLineEl) {
+        currentLineEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    
+    // Ensure editor container is scrolled to show the cursor
+    const editorContainer = document.getElementById('editor-container');
+    if (editorContainer.scrollHeight > editorContainer.clientHeight) {
+        editorContainer.scrollTop = editorContainer.scrollHeight;
+        syncScroll(); // Sync line numbers after scrolling
+    }
 }
 
 // Update line numbers based on actual visual lines
@@ -256,6 +272,9 @@ window.addEventListener('resize', () => {
         updateLineNumbers();
     }
 });
+
+// Add scroll event listener to editor container
+document.getElementById('editor-container').addEventListener('scroll', syncScroll);
 
 // Start the animation
 window.onload = function() {
