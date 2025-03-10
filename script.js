@@ -120,8 +120,24 @@ function setCursorPosition() {
     const lineRect = line.getBoundingClientRect();
     const editorRect = editorContent.getBoundingClientRect();
     
+    // Calculate actual visual line number
+    let visualLineNumber = 1;
+    for (let i = 0; i < currentLine; i++) {
+        const lineHeight = parseInt(getComputedStyle(lines[i]).lineHeight);
+        const actualHeight = lines[i].offsetHeight;
+        visualLineNumber += Math.max(1, Math.ceil(actualHeight / lineHeight));
+    }
+    
+    // Calculate current line's visual position
+    const lineHeight = parseInt(getComputedStyle(line).lineHeight);
+    const currentVisualLine = Math.floor((currentChar * parseFloat(getComputedStyle(line).fontSize)) / line.offsetWidth);
+    visualLineNumber += currentVisualLine;
+    
     // Set cursor top position (relative to the editor)
     let top = lineRect.top - editorRect.top;
+    
+    // Add offset for wrapped lines
+    top += currentVisualLine * lineHeight;
     
     // Use a measurement span to get the exact position for the cursor
     const measure = document.createElement('span');
@@ -139,7 +155,7 @@ function setCursorPosition() {
     let left;
     if (currentChar > 0) {
         const measureRect = measure.getBoundingClientRect();
-        left = measureRect.width + 10; // 10px is the padding
+        left = (measureRect.width % line.offsetWidth) + 10; // Account for wrapping
     } else {
         left = 10; // Start position (padding)
     }
@@ -151,8 +167,8 @@ function setCursorPosition() {
     // Clean up
     line.removeChild(measure);
     
-    // Update cursor position in status bar
-    cursorPosition.textContent = `${currentLine + 1},${currentChar}`;
+    // Update cursor position in status bar with visual line number
+    cursorPosition.textContent = `${visualLineNumber},${currentChar % (Math.floor(line.offsetWidth / parseFloat(getComputedStyle(line).fontSize)))}`;
 }
 
 // Type command
