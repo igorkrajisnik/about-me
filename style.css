@@ -192,7 +192,8 @@ html, body {
 #editor-container {
     flex: 1;
     position: relative;
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
     max-width: 100%;
 }
 
@@ -206,6 +207,7 @@ html, body {
     font-size: var(--font-size);
     line-height: var(--line-height);
     overflow-x: hidden;
+    word-wrap: break-word;
 }
 
 #editor-content div {
